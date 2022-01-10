@@ -1,0 +1,1 @@
+for math detail: https://blog.dominodatalab.com/fitting-support-vector-machines-quadratic-programming

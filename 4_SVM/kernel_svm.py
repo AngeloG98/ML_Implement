@@ -1,3 +1,4 @@
+from math import gamma
 from numpy.lib.shape_base import column_stack
 import pandas as pd
 import numpy as np
@@ -10,7 +11,7 @@ import cvxopt
 from cvxopt import matrix, solvers
 
 def data_split():
-    dataset = pd.read_csv('./0_Data_Generation/data/linear_svm_data.csv')
+    dataset = pd.read_csv('./0_Data_Generation/data/nonlinear_svm_data.csv')
     X = dataset.iloc[:, :-1].values
     Y = dataset.iloc[:, -1].values
 
@@ -18,28 +19,42 @@ def data_split():
     return X_train, X_test, Y_train, Y_test
 
 class SVM:
-    def __init__(self) -> None:
+    def __init__(self, C = None, gamma = 10) -> None:
         self.w = []
         self.b = 0
+        self.C = C
+        self.gamma = gamma
+
+    def gaussian_kernel(self, X, Z, gamma):
+        return np.exp(-gamma * np.linalg.norm(X-Z)**2)
+
 
     def fit(self, X, Y):
         n_samples, n_features = X.shape
         K = np.zeros((n_samples, n_samples))
         for i in range(n_samples):
             for j in range(n_samples):
-                K[i, j] = np.dot(X[i], X[j])
+                K[i, j] = self.gaussian_kernel(X[i], X[j], self.gamma)
         P = matrix(np.outer(Y, Y)*K)
         q = matrix(-np.ones((n_samples, 1)))
-        G = matrix(np.diag(np.ones(n_samples) * -1))
-        h = matrix(np.zeros(n_samples))
+
+        if self.C is None:
+            G = matrix(np.negative(np.eye(n_samples)))
+            h = matrix(np.zeros(n_samples))
+        else:
+            tmp1 = np.negative(np.eye(n_samples))
+            tmp2 = np.identity(n_samples)
+            G = matrix(np.vstack((tmp1, tmp2)))
+            tmp1 = np.zeros(n_samples)
+            tmp2 = np.ones(n_samples) * self.C
+            h = matrix(np.hstack((tmp1, tmp2)))
+
         b = matrix(np.zeros(1))
         A = matrix(Y.reshape(1, -1))
 
         solvers.options['show_progress'] = False
         solution = cvxopt.solvers.qp(P, q, G, h, A, b)
         alphas = np.ravel(solution["x"])
-
-        self.w = np.dot((Y * alphas).T, X) 
 
         # Support vectors have non zero lagrange multipliers
         S = alphas > 1e-5
@@ -54,17 +69,20 @@ class SVM:
         self.b /= len(self.alphas)
 
     def predict(self, X):
-        try:
-            return np.sign(np.dot(X, self.w) + self.b)
-        except:
-            print("empty weight!")
+        y_predict = np.zeros(len(X))
+        for i in range(len(X)):
+            s = 0
+            for a, svy, svx in zip(self.alphas, self.sv_y, self.sv_x):
+                s += a * svy * self.gaussian_kernel(X[i], svx, self.gamma)
+            y_predict[i] = s
+        return np.sign(y_predict + self.b)
 
 
 
 if __name__ == "__main__":
     X_train, X_test, Y_train, Y_test = data_split()
 
-    svm_classifier = SVM()
+    svm_classifier = SVM(C = 0.3, gamma = 5)
     svm_classifier.fit(X_train, Y_train)
     
     Y_pred = svm_classifier.predict(X_test)
@@ -73,8 +91,8 @@ if __name__ == "__main__":
 
     # training set
     X_set, y_set = X_train, Y_train
-    X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01),
-                        np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.01))
+    X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.2),
+                        np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.2))
     plt.contourf(X1, X2, svm_classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
                 alpha = 0.75, cmap = ListedColormap(('red', 'green')))
     plt.xlim(X1.min(), X1.max())
@@ -90,8 +108,8 @@ if __name__ == "__main__":
 
     #test set
     # X_set, y_set = X_test, y_test
-    # X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01),
-    #                      np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.01))
+    # X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.1),
+    #                      np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.1))
     # plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
     #              alpha = 0.75, cmap = ListedColormap(('red', 'green')))
     # plt.xlim(X1.min(), X1.max())

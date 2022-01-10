@@ -8,7 +8,7 @@ from matplotlib.colors import ListedColormap
 from sklearn.svm import SVC
 
 
-dataset = pd.read_csv('./0_Data_Generation/data/linear_classification_data.csv')
+dataset = pd.read_csv('./0_Data_Generation/data/linear_svm_data.csv')
 X = dataset.iloc[:, :-1].values
 y = dataset.iloc[:, -1].values
 
@@ -34,8 +34,8 @@ for i, j in enumerate(np.unique(y_set)):
     plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
                 c = ListedColormap(('red', 'green'))(i), label = j)
 plt.title('SVM (Training set)')
-plt.xlabel('Age')
-plt.ylabel('Estimated Salary')
+plt.xlabel('x1')
+plt.ylabel('x2')
 plt.legend()
 plt.show()
 
@@ -51,7 +51,7 @@ plt.show()
 #     plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
 #                 c = ListedColormap(('red', 'green'))(i), label = j)
 # plt.title('SVM (Test set)')
-# plt.xlabel('Age')
-# plt.ylabel('Estimated Salary')
+# plt.xlabel('x1')
+# plt.ylabel('x2')
 # plt.legend()
 # plt.show()
