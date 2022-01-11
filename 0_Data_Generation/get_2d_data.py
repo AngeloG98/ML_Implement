@@ -47,17 +47,8 @@ def save_linear_logistic_data():
     df = pd.DataFrame(columns = ["X1","X2","Tag"],data = pos_neg)
     df.to_csv("./0_Data_Generation/data/linear_classification_data.csv",encoding='utf-8',index=False)
 
-def save_nonlinear_svm_data():
-    pos = get_input_pos()
-    neg = get_input_neg(pos)
-    pos_tag = np.column_stack((pos,np.ones(pos.shape[0])))
-    neg_tag = np.column_stack((neg,np.zeros(neg.shape[0])))
-    pos_neg = np.vstack((pos_tag,neg_tag))
-    np.random.shuffle(pos_neg)
-    df = pd.DataFrame(columns = ["X1","X2","Tag"],data = pos_neg)
-    df.to_csv("./0_Data_Generation/data/nonlinear_svm_data.csv",encoding='utf-8',index=False)
 
-def save_linear_svm_data(type = 1):
+def save_classification_data(type = "sep"):
     pos = get_input_pos()
     neg = get_input_neg(pos)
     pos_tag = np.column_stack((pos,np.ones(pos.shape[0])))
@@ -65,15 +56,18 @@ def save_linear_svm_data(type = 1):
     pos_neg = np.vstack((pos_tag,neg_tag))
     np.random.shuffle(pos_neg)
     df = pd.DataFrame(columns = ["X1","X2","Tag"],data = pos_neg)
-    if type == 1: #separable
+    if type == "sep": #separable linear
         filename = "./0_Data_Generation/data/linear_svm_data.csv"
-    else: #non-separable
+    elif type == "nonsep": #non-separable linear
         filename = "./0_Data_Generation/data/nonsep-linear_svm_data.csv"
+    elif type == "nonlinear": #nonlinear
+        filename = "./0_Data_Generation/data/nonlinear_svm_data.csv"
+    elif type == "dt": #decision tree
+        filename = "./0_Data_Generation/data/decision_tree_data.csv"
     df.to_csv(filename,encoding='utf-8',index=False)
 
 if __name__ == "__main__":
     # save_linear_data()
     # save_nonlinear_data()
     # save_linear_logistic_data()
-    # save_nonlinear_logistic_data()
-    save_linear_svm_data(2)
+    save_classification_data("dt")
