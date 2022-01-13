@@ -53,8 +53,8 @@ def save_nonlinear_data():
 def save_linear_logistic_data():
     pos = get_input_pos()
     neg = get_input_neg(pos)
-    pos_tag = np.column_stack((pos,np.ones(pos.shape[0])))
-    neg_tag = np.column_stack((neg,np.zeros(neg.shape[0])))
+    pos_tag = np.column_stack((pos,np.ones(pos.shape[0]))) # 1
+    neg_tag = np.column_stack((neg,np.zeros(neg.shape[0]))) # 0
     pos_neg = np.vstack((pos_tag,neg_tag))
     np.random.shuffle(pos_neg)
     df = pd.DataFrame(columns = ["X1","X2","Tag"],data = pos_neg)
@@ -64,8 +64,8 @@ def save_linear_logistic_data():
 def save_classification_data(type = "sep"):
     pos = get_input_pos()
     neg = get_input_neg(pos)
-    pos_tag = np.column_stack((pos,np.ones(pos.shape[0])))
-    neg_tag = np.column_stack((neg,-1*np.ones(neg.shape[0])))
+    pos_tag = np.column_stack((pos,np.ones(pos.shape[0]))) # 1
+    neg_tag = np.column_stack((neg,-1*np.ones(neg.shape[0]))) # -1
     pos_neg = np.vstack((pos_tag,neg_tag))
     np.random.shuffle(pos_neg)
     df = pd.DataFrame(columns = ["X1","X2","Tag"],data = pos_neg)
@@ -83,9 +83,9 @@ def save_multiclass_data():
     a = get_input_pos()
     b = get_input_neg(a)
     c = get_imput_multi(a, b)
-    a_tag = np.column_stack((a,np.ones(a.shape[0])))
-    b_tag = np.column_stack((b,-1*np.ones(b.shape[0])))
-    c_tag = np.column_stack((c,np.zeros(c.shape[0])))
+    a_tag = np.column_stack((a,np.ones(a.shape[0]))) # 1
+    b_tag = np.column_stack((b,-1*np.ones(b.shape[0]))) # -1
+    c_tag = np.column_stack((c,np.zeros(c.shape[0]))) # 0
     abc = np.vstack((a_tag,b_tag,c_tag))
     np.random.shuffle(abc)
     df = pd.DataFrame(columns = ["X1","X2","Tag"],data = abc)
