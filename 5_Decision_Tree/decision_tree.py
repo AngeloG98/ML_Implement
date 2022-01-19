@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from matplotlib.colors import ListedColormap
 from sklearn.preprocessing import StandardScaler
+from random import sample
 
 def data_split():
     dataset = pd.read_csv('./0_Data_Generation/data/multiclass_data.csv')
@@ -21,8 +22,8 @@ def data_split():
 
 
 class Decision_Tree:
-    def __init__(self, min_data = 2, max_depth = 10) -> None:
-        self.n_feature = 0
+    def __init__(self, min_data = 2, max_depth = 5) -> None:
+        self.feature = []
         self.min_data = min_data
         self.max_depth = max_depth
 
@@ -56,7 +57,7 @@ class Decision_Tree:
         bestthreshold = 0
         best_left_data = np.array([])
         best_right_data = np.array([])
-        for idx in range(self.n_feature):
+        for idx in self.feature_list:
             value_list = list(data[:, idx])
             value_list.sort()
             threshold_list = [ (value_list[i]+value_list[i+1])/2 for i in range(len(value_list)-1) ]
@@ -76,8 +77,10 @@ class Decision_Tree:
         node['feature'] = bestfeature
         node['threshold'] = bestthreshold
         node['groups'] = best_left_data, best_right_data
-
-        return node
+        if best_left_data.size == 0 or best_right_data.size == 0:
+            return self.leafnode(data), 1
+        else:
+            return node, 0
 
     def leafnode(self, data): # if leaf node --- choose max class
         class_labels, count = np.unique(data[:,-1], return_counts= True)
@@ -97,20 +100,25 @@ class Decision_Tree:
         elif left_data.shape[0] <= self.min_data:
             node["left"] = self.leafnode(left_data)
         else:
-            node["left"] = self.choose_feature_th(left_data)
-            self.growCARTtree(node["left"],depth+1)
+            node["left"], tag = self.choose_feature_th(left_data)
+            if tag == 0:
+                self.growCARTtree(node["left"],depth+1)
                 
         if len(set(right_data[:,-1])) == 1:
                 node["right"] = self.leafnode(right_data)
         elif right_data.shape[0] <= self.min_data:
             node["right"] = self.leafnode(right_data)
         else:
-            node["right"] = self.choose_feature_th(right_data)
-            self.growCARTtree(node["right"],depth+1)
+            node["right"], tag = self.choose_feature_th(right_data)
+            if tag == 0:
+                self.growCARTtree(node["right"],depth+1)
 
-    def fit(self, data):
-        self.n_feature = data[:,:-1].shape[1]
-        self.root = self.choose_feature_th(data)
+    def fit(self, data, k=None):
+        if k == None:
+            self.feature_list = list(range(data[:,:-1].shape[1]))
+        else:
+            self.feature_list = sample(range(data[:,:-1].shape[1]), k)
+        self.root, tag = self.choose_feature_th(data)
         self.growCARTtree(self.root, 1)
         return self.root
 
@@ -130,7 +138,10 @@ class Decision_Tree:
         y_pred = np.array([])
         for xi in X:
             y_pred = np.append(y_pred,self.searchtree(self.root,xi))
+        return y_pred
 
+    def predict_single(self, x):
+        y_pred = self.searchtree(self.root,x)
         return y_pred
 
         
