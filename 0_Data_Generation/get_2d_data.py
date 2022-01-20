@@ -79,7 +79,7 @@ def save_classification_data(type = "sep"):
         filename = "./0_Data_Generation/data/decision_tree_data.csv"
     df.to_csv(filename,encoding='utf-8',index=False)
 
-def save_multiclass_data():
+def save_multiclass_data(type):
     a = get_input_pos()
     b = get_input_neg(a)
     c = get_imput_multi(a, b)
@@ -89,7 +89,10 @@ def save_multiclass_data():
     abc = np.vstack((a_tag,b_tag,c_tag))
     np.random.shuffle(abc)
     df = pd.DataFrame(columns = ["X1","X2","Tag"],data = abc)
-    df.to_csv("./0_Data_Generation/data/multiclass_data.csv",encoding='utf-8',index=False)
+    if type == "dt":
+        df.to_csv("./0_Data_Generation/data/multiclass_data.csv",encoding='utf-8',index=False)
+    elif type == "knn":
+        df.to_csv("./0_Data_Generation/data/knn_data.csv",encoding='utf-8',index=False)
 
 
 if __name__ == "__main__":
@@ -97,4 +100,4 @@ if __name__ == "__main__":
     # save_nonlinear_data()
     # save_linear_logistic_data()
     # save_classification_data("dt")
-    save_multiclass_data()
+    save_multiclass_data("knn")
