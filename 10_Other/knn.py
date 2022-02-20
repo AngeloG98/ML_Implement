@@ -68,7 +68,7 @@ if __name__ == "__main__":
     for i, j in enumerate(np.unique(y_set)):
         plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
                     c = ListedColormap(('red', 'green', "blue"))(i), label = j)
-    plt.title('Decision Tree Classification (Training set)')
+    plt.title('KNN (Training set)')
     plt.xlabel('x1')
     plt.ylabel('x2')
     plt.legend()
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     # for i, j in enumerate(np.unique(y_set)):
     #     plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
     #                 c = ListedColormap(('red', 'green', "blue"))(i), label = j)
-    # plt.title('Decision Tree Classification (Training set)')
+    # plt.title('KNN (Training set)')
     # plt.xlabel('x1')
     # plt.ylabel('x2')
     # plt.legend()
